@@ -1,0 +1,26 @@
+
+    /* Navbar background color and text color */
+    .navbar {
+        background-color: black; /* Navbar background color */
+    }
+
+    .navbar .nav-link,
+    .navbar .navbar-brand {
+        color: green; /* Default text color */
+        font-size: 1rem; /* Initial text size */
+        transition: color 0.3s, font-size 0.3s; /* Smooth transitions */
+    }
+
+    /* Text color and size on hover */
+    .navbar .nav-link:hover,
+    .navbar .navbar-brand:hover {
+        color: red; /* Text color on hover */
+        font-size: 1.2rem; /* Increased text size on hover */
+    }
+
+    /* Badge styling for cart icon */
+    .navbar .badge {
+        font-size: 0.75rem;
+        padding: 0.3em 0.5em;
+    }
+

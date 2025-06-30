@@ -1,0 +1,179 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+{% load tz %}
+
+{% block content %}
+<div class="container py-5">
+    <a href="{% url 'base:products' %}" class="btn btn-outline-secondary mb-4">
+        &larr; Back to Products
+    </a>
+
+    <div class="row">
+        <!-- Product Images & Bid History -->
+        <div class="col-md-6">
+            <div class="d-flex flex-column">
+                <!-- Product Image Carousel -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for image in product.images.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ image.image.url }}" class="d-block w-100" alt="Product image {{ forloop.counter }}">
+                                </div>
+                                {% empty %}
+                                <div class="carousel-item active">
+                                    <img src="/static/default-product-image.png" class="d-block w-100" alt="No image available">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if product.images.count > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scrollable Bid History Table Below Images -->
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Bid History</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Bidder</th>
+                                    <th>Bid Amount</th>
+                                    <th>Bid Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for history in bids_history.all %}
+                                <tr>
+                                    <td>{{ history.user }}</td>
+                                    <td>${{ history.bid_amount|intcomma }}</td>
+                                    <td>{{ history.bid_time|date:"M j, Y H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No bids placed yet</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details Section -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="product-title mb-3">{{ product.name }}</h1>
+
+                    <div class="alert alert-info">
+                        <h4>
+                            {% if product.is_active %}
+                            <span class="badge bg-success">Live Auction</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Auction Ended</span>
+                            {% endif %}
+                        </h4>
+                        <p class="countdown" data-end="{{ product.auction_end_time|utc|date:'c' }}">
+                            {% if product.is_active %}
+                            Auction ends in: Loading...
+                            {% else %}
+                            Auction ended on {{ product.auction_end_time|date:"M j, Y H:i" }}
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <h3 class="text-primary">
+                        {% if product.current_bid %}
+                        ${{ product.current_bid|intcomma }}
+                        {% else %}
+                        ${{ product.start_bid|intcomma }}
+                        {% endif %}
+                    </h3>
+                    <small class="text-muted">
+                        {% if product.current_bid %}Current Bid{% else %}Starting Bid{% endif %}
+                    </small>
+
+                    {% if user.is_authenticated and product.is_active %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bidModal">
+                        Place Bid
+                    </button>
+                    {% endif %}
+
+                    <h4 class="mt-3">Description</h4>
+                    <p>{{ product.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Bid Modal -->
+<div class="modal fade" id="bidModal" tabindex="-1" aria-labelledby="bidModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bidModalLabel">Place Bid</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url'base:place_bid' product.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label for="bidAmount" class="form-label">Bid Amount</label>
+                    <input type="number" class="form-control" id="bidAmount" name="bid_amount" 
+                           min="{% if product.current_bid %}{{ product.current_bid.amount|add:1 }}{% else %}{{ product.start_bid|add:1 }}{% endif %}"
+                           step="1" required>
+                    <small class="form-text">
+                        Minimum bid: ${{ product.current_bid.amount|add:1|intcomma|default:product.start_bid|add:1|intcomma }}
+                    </small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Bid</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript Countdown Timer -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    function updateCountdown() {
+        document.querySelectorAll(".countdown").forEach(element => {
+            const endTime = new Date(element.getAttribute("data-end")).getTime();
+            const now = new Date().getTime();
+            const timeLeft = endTime - now;
+
+            if (timeLeft > 0) {
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                element.innerHTML = `Auction ends in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                element.innerHTML = "Auction has ended";
+            }
+        });
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+});
+</script>
+
+{% endblock %}

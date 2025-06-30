@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            min-height: 100vh;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background: #171c22;
+    color: white;
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+}
+
+.vendor-profile {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+}
+
+
+/* Sidebar Link Styles */
+.sidebar-nav a {
+    color: #e2e6e8;
+    text-decoration: none;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    margin: 8px 0;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover Effect */
+.sidebar-nav a:hover {
+    background: #27f227;
+    color: #171c22;
+    transform: translateX(5px);
+}
+
+/* Add a glowing effect on hover */
+.sidebar-nav a:hover::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: #27f227;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Active State */
+.sidebar-nav a.active {
+    background-color: #ce3131; /* Change to your preferred color */
+    color: rgb(49, 6, 6);
+    font-weight: bold;
+}
+
+/* Icon Styling */
+.sidebar-nav i {
+    margin-right: 10px;
+    width: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Icon animation */
+.sidebar-nav a:hover i {
+    transform: scale(1.2);
+}
+
+        /* Sidebar Styles (keep your existing sidebar styles) */
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Profile Container */
+        .profile-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-header h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .profile-header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .image-upload-wrapper {
+            position: relative;
+            margin: 0 auto;
+            width: 150px;
+            height: 150px;
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid #ecedf2;
+            position: relative;
+        }
+
+        #preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #27f227;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-icon:hover {
+            background: #1fc91f;
+            transform: scale(1.1);
+        }
+
+        .upload-icon i {
+            color: white;
+            font-size: 16px;
+        }
+
+        .no-image {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        /* Form Styles */
+        .profile-form .form-group {
+            margin-bottom: 25px;
+        }
+
+        .profile-form label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .profile-form input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecedf2;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .profile-form input:focus {
+            outline: none;
+            border-color: #27f227;
+        }
+
+        .save-button {
+            width: 100%;
+            padding: 15px;
+            background: #27f227;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .save-button:hover {
+            background: #1fc91f;
+        }
+        #message-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #28a745;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+            .profile-container {
+                padding: 25px;
+            }
+            .image-upload-wrapper {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+
+        <div class="sidebar">
+            <div class="vendor-profile">
+                <img src="{{user.profile.image.url}}" alt="Profile" class="profile-img">
+                
+                <h3>{{user.username}}</h3>
+                <h3>ID No:{{user.id}}</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul >
+                    <li><a href="{% url 'customer:profile' %}" class="{% if request.path == '/customer/profile/' %} active {% endif %}"><i class="fas fa-user"></i> Profile</a></li>
+                    <li><a href="{% url 'customer:dashboard' %}" class="{% if request.path == '/customer/dashboard/' %} active {% endif %}" ><i class="fas fa-box"></i>Dashboard</a></li>
+                    <li><a href="{% url 'customer:items_bid' %}" class="{% if request.path == '/customer/items_bid/' %} active {% endif %}"><i class="fas fa-box"></i> Products Bid</a></li>
+                    <li><a href="{% url 'customer:items_won' %}" class="{% if request.path == '/customer/items_won/' %} active {% endif %}"><i class="fas fa-chart-line"></i> Products Won</a></li>
+                    <li><a href="#"><i class="fas fa-wallet"></i> Notifications</a></li>
+                    <li><a href="{% url 'customer:orders' %}" class="{% if request.path == '/customer/orders/' %} active {% endif %}"><i class="fas fa-wallet"></i>Orders</a></li>
+                    <li><a href="{% url 'customer:wishlist' %}" class="{% if request.path == '/customer/wishlist/' %} active {% endif %}"><i class="fas fa-star"></i>Wishlist</a></li>
+                    <li><a href="{% url 'customer:notis' %}" class="{% if request.path == '/customer/notis/' %} active {% endif %}"><i class="fas fa-wallet"></i> Notifications</a></li>
+                    <li><a href="{% url 'customer:reviews' %}" class="{% if request.path == '/customer/reviews/' %} active {% endif %}"><i class="fas fa-comment"></i> Reviews</a></li>
+                    <li><a href="{% url 'base:home' %}"><i class="fas fa-sign-out-alt"></i> Home</a></li>
+                    <li><a href="{% url 'userauths:sign-out' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+        <!-- Keep your existing sidebar code -->
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="profile-container">
+                <form class="profile-form" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="profile-header">
+
+                        <h2>@{{user.username}}</h2>
+                        
+                        <div class="image-upload-wrapper">
+                            <div class="image-preview">
+                                {% if user.profile.image %}
+                                    <img id="preview-image" src="{{ user.profile.image.url }}" alt="Profile Preview">
+                                {% else %}
+                                    <div class="no-image">ProfileImage</div>
+                                {% endif %}
+                                <label class="upload-icon" for="image-upload">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                            </div>
+                            <input type="file" hidden id="image-upload" name="image" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" name="email"  readonly value="{{user.email}}" >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullname">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" value="{{ profile.full_name }}">
+                    </div>
+
+                    
+                    
+                    <div class="form-group">
+                        <label for="mobile">Mobile</label>
+                        <input type="tel" id="mobile" name="mobile" value="{{ profile.mobile }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="fullname">Bio</label>
+                        <input type="textbox" id="bio" name="bio" value="{{ profile.bio }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Usertype</label>
+                        <input type="text" id="usertype" name="usertype"  readonly value="{{profile.user_type}}" >
+                    </div>
+
+                    <button type="submit" class="save-button">Save Changes</button>
+                </form>
+                <a href="{% url 'customer:change_password' %}" style="margin: 10px; padding: 10px;">change password</a>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div id="message-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+        <!-- Keep your existing messages code -->
+    </div>
+
+    <script>
+        // Image Preview Script
+        document.getElementById('image-upload').addEventListener('change', function(e) {
+            const preview = document.getElementById('preview-image');
+            const reader = new FileReader();
+            
+            reader.onload = function() {
+                if (!preview) {
+                    const newPreview = document.createElement('img');
+                    newPreview.id = 'preview-image';
+                    newPreview.src = reader.result;
+                    newPreview.alt = 'Profile Preview';
+                    document.querySelector('.image-preview').prepend(newPreview);
+                } else {
+                    preview.src = reader.result;
+                }
+                // Remove any existing "no-image" text
+                const noImage = document.querySelector('.no-image');
+                if (noImage) noImage.remove();
+            }
+            
+            if (e.target.files[0]) {
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Auto-hide messages
+        setTimeout(function() {
+            const messageContainer = document.getElementById("message-container");
+            if (messageContainer) {
+                messageContainer.style.display = "none";
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+
+.navbar-brand{
+color:#27f227
+}
+#navbarNav .nav-link {
+   color: #27f227;
+}
+
+#navbarNav .nav-link:hover {
+   color: #ef3838; /* Dark green on hover */
+}
+
+/* Optional: Make the active link more visible */
+.nav-item.active .nav-link {
+   color: #27f227; /* A darker shade of green */
+}
+
+body {
+   background-image: url(static\assents\image\bg_img.jpg);
+ background-color: #f4f4f4; 
+}
+
+.card {
+border-radius: 8px;
+overflow: hidden;
+}
+
+.card-body {
+padding: 30px;
+}
+
+h2 {
+color: #333;
+}
+
+.text-center a {
+color: #007bff;
+text-decoration: none;
+}
+
+.text-center a:hover {
+text-decoration: underline;
+color:rgb(0, 255, 98);
+}
+.social-login-buttons {
+   display: flex;
+   flex-direction: column;
+   gap: 15px;
+   max-width: 200px;
+   margin: 50px auto;
+}
+
+.btn {
+   padding: 10px;
+   font-size: 14px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+}
+
+.btn i {
+   margin-right: 10px; /* Space between the icon and text */
+}
+
+.btn-danger {
+   background-color: #db4437; /* Google red */
+   color: white;
+}
+
+.btn-primary {
+   background-color: #3b5998; /* Facebook blue */
+   color: white;
+}
+
