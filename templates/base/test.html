@@ -1,0 +1,565 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+{% load tz %}
+
+{% block content %}
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+
+    body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f5f5f5;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .product-main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .product-images {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .main-image {
+        width: 100%;
+        height: 400px;
+        object-fit: contain;
+        margin-bottom: 15px;
+    }
+
+    .thumbnail-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .thumbnail {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+
+    .thumbnail.active {
+        border-color: #e74c3c;
+    }
+
+    .auction-details {
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .auction-title {
+        font-size: 28px;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+
+    .auction-meta {
+        margin-bottom: 20px;
+        color: #7f8c8d;
+    }
+
+    .current-bid {
+        background: #fff9f9;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+
+    .bid-price {
+        color: #e74c3c;
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .time-remaining {
+        font-size: 18px;
+        color: #e74c3c;
+        margin-bottom: 25px;
+    }
+
+    .bid-form {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .bid-input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .bid-button {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .bid-button:hover {
+        background: #c0392b;
+    }
+
+    .seller-info {
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+        margin-top: 20px;
+    }
+
+    .bidding-history {
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .section-title {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+
+    .product-description {
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-top: 30px;
+    }
+    .history-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.bid-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.key-details ul {
+    padding-left: 25px;
+    margin-top: 10px;
+}
+
+.key-details li {
+    margin-bottom: 8px;
+}
+.review-section {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 30px;
+}
+
+.review-item {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-image {
+    flex: 0 0 100px;
+    height: 100px;
+}
+
+.review-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.review-content {
+    flex: 1;
+}
+.review-replies {
+        margin-top: 15px;
+        margin-left: 30px;
+        border-left: 3px solid #eee;
+        padding-left: 15px;
+    }
+
+    .reply-item {
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .reply-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+    }
+
+    .reply-user {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .reply-date {
+        color: #7f8c8d;
+    }
+
+    .reply-text {
+        color: #333;
+        font-size: 0.95em;
+        line-height: 1.4;
+    }
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.review-rating {
+    display: flex;
+    gap: 3px;
+}
+
+.star {
+    color: #ffd700;
+    font-size: 1.2rem;
+}
+
+.review-user {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.review-date {
+    color: #7f8c8d;
+    font-size: 0.9em;
+}
+
+.review-text {
+    color: #333;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .review-item {
+        flex-direction: column;
+    }
+    
+    .review-image {
+        flex: 0 0 auto;
+        height: auto;
+    }
+    
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .review-rating {
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .history-scroll {
+        max-height: 200px;
+    }
+    
+    .bid-price {
+        font-size: 28px;
+    }
+}
+.search-bar form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-bar input {
+        padding: 8px 15px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        width: 250px;
+    }
+
+    .search-bar button {
+        background: #007bff;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .product-main {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<div class="container py-5">
+    <a href="{% url 'base:products' %}" class="btn btn-outline-secondary mb-4">
+        &larr; Back to Products
+    </a>
+
+    <div class="row">
+        <!-- Product Images & Bid History -->
+        <div class="col-md-6">
+            <div class="d-flex flex-column">
+                <!-- Product Image Carousel -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for image in product.images.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ image.image.url }}" class="d-block w-100" alt="Product image {{ forloop.counter }}">
+                                </div>
+                                {% empty %}
+                                <div class="carousel-item active">
+                                    <img src="/static/default-product-image.png" class="d-block w-100" alt="No image available">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if product.images.count > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scrollable Bid History Table Below Images -->
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Bid History</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Bidder</th>
+                                    <th>Bid Amount</th>
+                                    <th>Bid Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for history in bids_history.all %}
+                                <tr>
+                                    <td>{{ history.user }}</td>
+                                    <td>${{ history.bid_amount|intcomma }}</td>
+                                    <td>{{ history.bid_time|date:"M j, Y H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No bids placed yet</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details Section -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="product-title mb-3">{{ product.name }}</h1>
+
+                    <div class="alert alert-info">
+                        <h4>
+                            {% if product.is_active %}
+                            <span class="badge bg-success">Live Auction</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Auction Ended</span>
+                            {% endif %}
+                        </h4>
+                        <p class="countdown" data-end="{{ product.auction_end_time|utc|date:'c' }}">
+                            {% if product.is_active %}
+                            Auction ends in: Loading...
+                            {% else %}
+                            Auction ended on {{ product.auction_end_time|date:"M j, Y H:i" }}
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <h3 class="text-primary">
+                        {% if product.current_bid %}
+                        ${{ product.current_bid|intcomma }}
+                        {% else %}
+                        ${{ product.start_bid|intcomma }}
+                        {% endif %}
+                    </h3>
+                    <small class="text-muted">
+                        {% if product.current_bid %}Current Bid{% else %}Starting Bid{% endif %}
+                    </small>
+
+                    {% if user.is_authenticated and product.is_active %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bidModal">
+                        Place Bid
+                    </button>
+                    {% endif %}
+
+                    <h4 class="mt-3">Description</h4>
+                    <p>{{ product.description }}</p>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        <!-- Seller Reviews -->
+<div class="review-section">
+    <h3 class="section-title">Seller Reviews</h3>
+    {% for r in product.get_vendor_reviews %}
+        <div class="review-item">
+            <div class="review-image">
+                
+                    <img src="{{ r.product.images.first.image.url }}" alt="Product Image">
+                
+                </div>
+            <div class="review-content">
+                <div class="review-header">
+                     <div>
+                        <span class="review-user">{{ r.user.username }}</span>
+                        <span class="review-date">{{ r.review_time|date:"M d, Y" }}</span>
+                    </div>
+                     <div class="review-rating">
+                         {% for i in "12345" %}
+                            {% if forloop.counter <= r.rating %}
+                                <span class="star">★</span>
+                            {% else %}
+                                <span class="star">☆</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="review-text">
+                    {{ r.review }}
+                </div>
+              
+            </div>
+        </div>
+            {% empty %}
+            <p class="text-muted">No reviews yet for this seller.</p>
+            {% endfor %}
+</div>
+
+
+
+<!-- Bid Modal -->
+<div class="modal fade" id="bidModal" tabindex="-1" aria-labelledby="bidModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bidModalLabel">Place Bid</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'base:place_bid' product.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label for="bidAmount" class="form-label">Bid Amount</label>
+                    <input type="number" class="form-control" id="bidAmount" name="bid_amount" 
+                           min="{% if product.current_bid %}{{ product.current_bid.amount|add:1 }}{% else %}{{ product.start_bid|add:1 }}{% endif %}"
+                           step="1" required>
+                    <small class="form-text">
+                        Minimum bid: ${{ product.current_bid.amount|add:1|intcomma|default:product.start_bid|add:1|intcomma }}
+                    </small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Bid</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript Countdown Timer -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    function updateCountdown() {
+        document.querySelectorAll(".countdown").forEach(element => {
+            const endTime = new Date(element.getAttribute("data-end")).getTime();
+            const now = new Date().getTime();
+            const timeLeft = endTime - now;
+
+            if (timeLeft > 0) {
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                element.innerHTML = `Auction ends in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                element.innerHTML = "Auction has ended";
+            }
+        });
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+});
+</script>
+
+{% endblock %}

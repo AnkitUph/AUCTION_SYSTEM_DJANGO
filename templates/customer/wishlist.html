@@ -1,0 +1,47 @@
+
+
+{% extends 'customer/sidebar.html' %}
+{% load static %}
+{% block content %}
+
+
+
+        <!-- Main Content -->
+        <div class="main-content">
+
+            <!-- Product List -->
+            <div class="product-list">
+                <h2 style="margin: 5px;"> Wishlist </h2>
+                
+                
+               <div class="card-container">
+                {% for p in wishlist_list %}
+                <div class="product-container">
+                    <div class="product-image">
+                        <img src="{{p.images.first.image.url}}" alt="Product Image">
+                    </div>
+                    <div class="product-items">
+                    <div class="product-info">
+                        <h3>{{p.name}}</h3>
+                        <p>Category:{{p.category}}</p>
+                        <p>CurrentBid:{{p.current_bid}}</p>
+                        <p>Shipping:{{p.shipping}}</p>
+                        
+                        
+                    </div>
+                   
+                    <div class="product-actions">
+                        <a href="{% url 'base:product_detail' p.id %}"><button class="btn-view"><i class="fas fa-eye"></i>View</button></a>
+                        <a href="{% url 'customer:remove_from_wishlist' p.id %}"><button class="btn-view"><i class="fa fa-trash"></i></button></a>
+                    </div>
+                </div>
+                </div>
+                {% endfor %}
+                </div>
+                
+            </div>
+        </div>
+
+
+        {% endblock content %}
+

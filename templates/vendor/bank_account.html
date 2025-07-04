@@ -1,0 +1,87 @@
+{% extends 'vendor/sidebar.html' %}
+{% block content %}
+
+<div class="main-content">
+    <div class="dashboard-overview">
+        <h2>Bank Account Details</h2>
+        
+        <div class="bank-account-form">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label>Bank Name</label>
+                    <input type="text" name="bank_name" 
+                           value="{{ bank_account.bank_name|default_if_none:'' }}" 
+                           class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="text" name="account_number" 
+                           value="{{ bank_account.account_number|default_if_none:'' }}" 
+                           class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Account Holder Name</label>
+                    <input type="text" name="account_name" 
+                           value="{{ bank_account.account_name|default_if_none:'' }}" 
+                           class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn-view">
+                    {% if bank_account %}Update{% else %}Create{% endif %} Account
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bank-account-form {
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 25px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #171c22;
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .btn-view {
+        background-color: #1a37de;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-view:hover {
+        background-color: #0f1f8a;
+    }
+</style>
+
+{% endblock content %}

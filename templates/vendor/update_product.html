@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Product: {{ product.name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 2rem;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background-color: #007bff;
+            margin-top: 8px;
+            border-radius: 5px;
+        }
+
+        h2 {
+            font-size: 22px;
+            color: #444;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 2px;
+            background-color: #999;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        label {
+            font-weight: 500;
+            display: block;
+            margin-top: 1rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="datetime-local"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.25rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            height: 100px;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .image-preview {
+            display: inline-block;
+            margin: 10px;
+            position: relative;
+        }
+
+        .image-preview img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: darkred;
+        }
+
+        #new-images-preview {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Update Product: {{ product.name }}</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ product.name }}">
+
+        <label for="category">Category:</label>
+        <select id="category_id" name="category_id" required>
+            {% for category in categories %}
+                <option value="{{ category.id }}"{% if category.id == product.category.id %} selected{% endif %}>
+                    {{ category.title }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required>{{ product.description }}</textarea>
+
+        <label for="start_bid">Start Bid:</label>
+        <input type="number" id="start_bid" name="start_bid" value="{{ product.start_bid }}">
+
+        <label for="auction_start_time">Auction Start Time:</label>
+        <input type="datetime-local" id="auction_start_time" name="auction_start_time" value="{{ product.auction_start_time|date:'Y-m-d\\TH:i' }}">
+
+        <label for="auction_end_time">Auction End Time:</label>
+        <input type="datetime-local" id="auction_end_time" name="auction_end_time" value="{{ product.auction_end_time|date:'Y-m-d\\TH:i' }}">
+
+        <label for="shipping">Shipping:</label>
+        <input type="text" id="shipping" name="shipping" value="{{ product.shipping }}">
+
+        <h2>Current Images:</h2>
+        <div id="existing-images">
+            {% for image in product.images.all %}
+                <div class="image-preview" data-image-id="{{ image.id }}">
+                    <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                    <button type="button" class="delete-btn" onclick="deleteImage(this, '{{ image.id }}')">×</button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h2>Add New Images:</h2>
+        <input type="file" id="new-images" name="new_images" multiple onchange="previewNewImages(event)">
+        <div id="new-images-preview"></div>
+
+        <button type="submit">Update Product</button>
+    </form>
+
+    <script>
+        function deleteImage(button, imageId) {
+            const imageDiv = button.parentElement;
+            imageDiv.remove();
+
+            const deleteInput = document.createElement('input');
+            deleteInput.type = 'hidden';
+            deleteInput.name = 'delete_images';
+            deleteInput.value = imageId;
+            document.querySelector('form').appendChild(deleteInput);
+        }
+
+        function previewNewImages(event) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById('new-images-preview');
+            previewContainer.innerHTML = '';
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const imagePreview = document.createElement('div');
+                    imagePreview.className = 'image-preview';
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.type = 'button';
+                    deleteButton.className = 'delete-btn';
+                    deleteButton.innerText = '×';
+                    deleteButton.onclick = function () {
+                        imagePreview.remove();
+                        removeFileFromInput(file);
+                    };
+
+                    imagePreview.appendChild(img);
+                    imagePreview.appendChild(deleteButton);
+                    previewContainer.appendChild(imagePreview);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeFileFromInput(fileToRemove) {
+            const input = document.getElementById('new-images');
+            const files = Array.from(input.files);
+            const updatedFiles = files.filter(file => file !== fileToRemove);
+
+            const dataTransfer = new DataTransfer();
+            updatedFiles.forEach(file => dataTransfer.items.add(file));
+            input.files = dataTransfer.files;
+        }
+    </script>
+</body>
+</html>

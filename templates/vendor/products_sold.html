@@ -1,0 +1,42 @@
+{% extends 'vendor/sidebar.html' %}
+{% load static %}
+{% block content %}
+
+
+
+        <!-- Main Content -->
+        <div class="main-content">
+
+            <!-- Product List -->
+            <div class="product-list">
+                <h2>Your Products</h2>
+                
+               <div class="card-container">
+                {% for p in products_sold %}
+                <div class="product-container">
+                    <div class="product-image">
+                        <img src="{{p.images.first.image.url}}" alt="Product Image">
+                    </div>
+                    <div class="product-items">
+                    <div class="product-info">
+                        <h3>{{p.name}}</h3>
+                        <p>Category:{{p.category}}</p>
+                        <p>StartBid:{{p.start_bid}}</p>
+                        <p>Shipping:{{p.shipping}}</p>
+                    </div>
+                   
+                    <div class="product-actions">
+                        <a href="{% url 'base:product_detail' p.id %}"><button class="btn-view"><i class="fas fa-eye"></i>View</button></a>
+                        
+                    </div>
+                </div>
+                </div>
+                {% endfor %}
+                </div>
+                
+            </div>
+        </div>
+</body>
+</html>
+
+{% endblock content %}

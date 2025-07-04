@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+   
+}
+
+body {
+    background-color: #f5f6fa;
+    display:flex;
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background: #171c22;
+    color: white;
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+}
+
+.vendor-profile {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+}
+
+
+/* Sidebar Link Styles */
+.sidebar-nav a {
+    color: #e2e6e8;
+    text-decoration: none;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    margin: 8px 0;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover Effect */
+.sidebar-nav a:hover {
+    background: #27f227;
+    color: #171c22;
+    transform: translateX(5px);
+}
+
+/* Add a glowing effect on hover */
+.sidebar-nav a:hover::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: #27f227;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Active State */
+.sidebar-nav a.active {
+    background-color: #ce3131; /* Change to your preferred color */
+    color: rgb(49, 6, 6);
+    font-weight: bold;
+}
+
+/* Icon Styling */
+.sidebar-nav i {
+    margin-right: 10px;
+    width: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Icon animation */
+.sidebar-nav a:hover i {
+    transform: scale(1.2);
+}
+
+
+/* Main Content */
+.main-content {
+    
+    margin-left: 250px;
+    padding: 30px;
+    width: calc(100% - 250px);
+}
+
+/* Dashboard Overview */
+.dashboard-overview {
+    margin-bottom: 30px;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.overview-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.overview-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-content {
+    text-align: center;
+}
+
+.card-content i {
+    font-size: 2rem;
+    color: #27f227;
+    margin-bottom: 15px;
+}
+
+.card-content h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.card-content p {
+    font-size: 1.5rem;
+    color: #1a37de;
+    font-weight: bold;
+}
+
+/* Product List */
+.product-list {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.product-list h2 {
+    margin-bottom: 20px;
+    color: #171c22;
+}
+.cards-container {
+       display:flex;
+       flex-wrap:wrap;
+       gap:5px;
+       justify-content: center;
+    }
+    .card-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Ensures 4 items per row */
+    gap: 10px; /* Reduces space between items */
+    justify-content: center;
+    align-items: stretch;
+}
+
+.product-container {
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+}
+
+.product-image img {
+    width: 100%;  /* Make images stretch to fit the container */
+    height: 180px;  /* Set a fixed height */
+    object-fit: contain;  /* Ensure the entire image is visible without cropping */
+    border-radius: 5px;
+    background-color: white; /* Prevent transparency issues */
+}
+
+
+
+
+    .product-container:hover {
+    background: #d8fadb;
+    
+    }
+
+
+
+    .product-info h3 {
+        
+        color:#171c22;
+        margin-bottom: 8px;
+    
+    }
+
+    .product-info p {
+        color: #4b5758;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+
+    .product-actions {
+        display: flex;
+        justify-content: space-around;
+        padding: 8px;
+    }
+
+    .badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+}
+.badge-success { background-color: #38a169; }
+.badge-warning { background-color: #ed8936; }
+.badge-danger { background-color: #e53e3e; }
+
+.btn-payout {
+    background-color: #38a169;
+    color: white;
+    padding: 8px 15px;
+    margin:4px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.btn-payout:hover {
+    background-color: #2f855a;
+}
+
+
+
+    
+    
+.btn-view, .btn-update, .btn-delete {
+    padding: 8px 15px;
+    margin:4px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+    
+
+    .btn-view {
+        background-color: #1a37de;
+    }
+    .btn-view:hover{
+        background-color: #1a37de;
+        color:white;
+    }
+
+    
+
+    .btn-update {
+        background-color: #30ff07;
+    }
+
+    .btn-update:hover {
+        background-color:#30e80b;
+        color:white;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+    }
+
+    .btn-delete:hover {
+        background-color: #ff0019;
+        color:white;
+    }
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .product-actions {
+        width: 100%;
+        margin-top: 15px;
+        flex-direction:row;
+    }
+    @media (max-width: 768px) {
+    .product-container {
+        flex-direction: column; /* Stacks products vertically */
+    }
+    .product-item {
+        width: 100%; /* Full width */
+    }
+}
+
+}
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="vendor-profile">
+                <img src="{{user.profile.image.url}}" alt="Profile" class="profile-img">
+                <h3>{{user.username}}</h3>
+                <h3>ID No:{{user.id}}</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="{% url 'vendor:profile' %}" class="{% if request.path == '/vendor/profile/' %} active {% endif %}"><i class="fas fa-user" style="color: #27f227;"></i> Profile</a></li>
+                    <li><a href="{% url 'vendor:dashboard' %}" class="{% if request.path == '/vendor/dashboard/' %} active {% endif %}" ><i class="fas fa-box" style="color: #27f227;"></i>Dashboard</a></li>
+                    <li><a href="{% url 'vendor:products' %}" class="{% if request.path == '/vendor/products/' %} active {% endif %}"><i class="fas fa-box" style="color: #27f227;"></i> Products</a></li>
+                    <li><a href="{% url 'vendor:orders' %}" class="{% if request.path == '/vendor/orders/' %} active {% endif %}"><i class="fas fa-box" style="color: #27f227;"></i> Orders</a></li>
+                    <li><a href="{% url 'vendor:products_sold' %}" class="{% if request.path == '/vendor/products_sold/' %} active {% endif %}"><i class="fas fa-chart-line" style="color: #27f227;"></i> Products Sold</a></li>
+                    <li><a href="{% url 'vendor:create_product' %}" class="{% if request.path == '/vendor/create_product/' %} active {% endif %}"><i class="fas fa-plus-circle" style="color: #27f227;"></i> Create Product</a></li>
+                    <li><a href="{% url 'vendor:notis' %}"><i class="fas fa-comment" style="color: #27f227;"></i>Notifications</a></li>
+                    <li><a href="{% url 'vendor:reviews' %}" class="{% if request.path == '/vendor/reviews/' %} active {% endif %}"><i class="fas fa-comment" style="color: #27f227;"></i> Reviews</a></li>
+                    <li><a href="{% url 'vendor:payouts' %}" class="{% if request.path == '/vendor/payouts/' %} active {% endif %}"><i class="fas fa-comment" style="color: #27f227;"></i> Payouts</a></li>
+                    <li><a href="{% url 'vendor:bank_account' %}" class="{% if request.path == '/vendor/bank-account/' %} active {% endif %}"><i class="fas fa-university" style="color: #27f227;"></i> Bank Acount</a></li>
+                    <li><a href="{% url 'base:home' %}"><i class="fas fa-sign-out-alt"></i> Home</a></li>
+                    <li><a href="{% url 'userauths:sign-out' %}"><i class="fas fa-sign-out-alt" style="color: #27f227;"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+        {% if messages %}
+        <div id="message-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <script>
+        // Auto-hide the message after 3 seconds
+        setTimeout(function() {
+            var messageContainer = document.getElementById("message-container");
+            if (messageContainer) {
+                messageContainer.style.display = "none";
+            }
+        }, 3000); // 3 seconds
+    
+        
+    </script>
+        {% block content %}
+
+        {% endblock content %}
+
+    </div>
+</body>
+</html>

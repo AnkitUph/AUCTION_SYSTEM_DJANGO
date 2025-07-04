@@ -1,0 +1,255 @@
+{% extends 'base/base.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+    .popular-products-section {
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+}
+
+.popular-products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.popular-products-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+}
+
+.popular-products-header a {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #007BFF;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.popular-products-header a:hover {
+  color: #0056b3;
+}
+
+.popular-products-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.popular-product-card {
+  flex: 1 1 200px;
+  max-width: 200px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.popular-product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.popular-product-image {
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popular-product-image img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.popular-product-name {
+  font-size: 1rem;
+  margin-top: 10px;
+  color: #222;
+}
+
+.popular-product-price {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #000;
+}
+.popular-categories-section {
+  padding: 40px 20px;
+  background-color: #ffffff;
+}
+
+.popular-categories-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.popular-categories-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+}
+
+.popular-categories-header a {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #007BFF;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.popular-categories-header a:hover {
+  color: #0056b3;
+}
+
+.popular-categories-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.popular-category-card {
+  flex: 1 1 200px;
+  max-width: 200px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.popular-category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.popular-category-image {
+  height: 130px;
+  width: 130px;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f3f3f3;
+}
+
+.popular-category-image img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.popular-category-name {
+  font-size: 1rem;
+  margin-top: 15px;
+  color: #222;
+}
+
+</style>
+<section class="background_img" id="home">
+    <div class="text">
+        <h1>Welcome to our website!</h1>
+        <p>
+            Buy and sell electronics, cars, clothes, collectibles, and more on this website, 
+            the world's online marketplace. Created by students of Mid-Western University as a 4th semester project.
+        </p>
+        <div class="search_bar">
+            <form class="search-bar" action="{% url 'base:search' %}" method="GET">
+                <div class="a"><a href="{% url 'base:products' %}">All</a></div>
+                <input type="text" name="query" placeholder="Search...">
+                <button type="submit">
+                    <i class="fa fa-search"></i> <span>Search</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<div class="popular-categories-section">
+    <div class="popular-categories-header">
+      <h2>Popular Categories</h2>
+      <a href="{% url 'base:category_list' %}">View all &rarr;</a>
+    </div>
+  
+    <div class="popular-categories-grid">
+      {% for category in categories %}
+      <a href="{% url 'base:category_list_product' category.slug %}" class="popular-category-card" style="text-decoration: none;">
+        <div class="popular-category-image">
+          {% if category.image %}
+          <img src="{{ category.image.url }}" alt="{{ category.title }}">
+          {% else %}
+          <img src="/static/default-category.png" alt="Category">
+          {% endif %}
+        </div>
+        <h3 class="popular-category-name">{{ category.title }}</h3>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  
+
+<div class="popular-products-section">
+    <div class="popular-products-header">
+      <h2>Popular Products</h2>
+      <a href="{% url 'base:products' %}">View all &rarr;</a>
+    </div>
+  
+    <div class="popular-products-grid">
+      {% for product in products %}
+      <a href="{% url 'base:product_detail' product.id %}" class="popular-product-card" style="text-decoration: none;">
+        <div class="popular-product-image">
+          {% if product.images.first %}
+          <img src="{{ product.images.first.image.url }}" 
+               alt="{{ product.name }}" 
+               class="w-100" 
+               style="height: 150px; object-fit: cover; border-radius: 10px 10px 0 0;">
+          {% else %}
+          <img src="/static/default-product-image.png" 
+               alt="No image available" 
+               class="w-100" 
+               style="height: 150px; object-fit: cover; border-radius: 10px 10px 0 0;">
+          {% endif %}
+        </div>
+        <h3 class="popular-product-name">{{ product.name|truncatechars:20 }}</h3>
+        <p class="popular-product-price">${{ product.current_bid|default:product.start_bid }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  
+  
+
+    <section class="contact" id="contact1">
+        <h2><i class="fas fa-envelope"></i> Contact Us</h2>
+        <div class="contact-info">
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>📍 SANO-SURKHET, BIRENDRANAGAR SURKHET
+            </div>
+            <br>
+            <div class="contact-item">
+                <i class="fas fa-phone-alt"></i> +977 9812834704
+            </div>
+            <div class="contact-item">
+                <i class="fas fa-envelope"></i> as3750141@gmail.com
+            </div>
+        </div>
+    </section>
+    
+{% endblock content %}

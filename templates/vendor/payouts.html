@@ -1,0 +1,126 @@
+{% extends 'vendor/sidebar.html' %}
+{% block content %}
+
+<div class="main-content">
+    <div class="dashboard-overview">
+        <h2>Payout Management</h2>
+        <div class="btn-group mb-4">
+            <a href="?status=pending" 
+               class="btn-view {% if current_status == 'pending' %}active{% endif %}">
+                Requested Payouts ({{ pending_count }})
+            </a>
+            <a href="?status=approved" 
+               class="btn-update {% if current_status == 'approved' %}active{% endif %}">
+                Approved Payouts ({{ approved_count }})
+            </a>
+        </div>
+
+        <div class="product-list">
+            {% if payouts %}
+            <table class="payout-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Order Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Requested On</th>
+                        <th>Approved On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payout in payouts %}
+                    <tr class="product-container">
+                        <td>{{ payout.item.product.name }}</td>
+                        <td>{{ payout.item.order_date|date:"M d, Y" }}</td>
+                        <td>${{ payout.amount }}</td>
+                        <td>
+                            <span class="badge {% if payout.status == 'approved' %}badge-success{% else %}badge-warning{% endif %}">
+                                {{ payout.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ payout.requested_on|date:"M d, Y H:i" }}</td>
+                        <td>
+                            {% if payout.status == 'approved' %}
+                                {{ payout.approved_on|date:"M d, Y H:i" }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-info">
+                No {{ current_status }} payouts found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .payout-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .payout-table th,
+    .payout-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .payout-table th {
+        background-color: #171c22;
+        color: white;
+    }
+
+    .payout-table tr:hover {
+        background-color: #d8fadb;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .btn-group a {
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view {
+        background-color: #1a37de;
+        color: white;
+    }
+
+    .btn-update {
+        background-color: #30ff07;
+        color: #171c22;
+    }
+
+    .btn-view.active {
+        background-color: #0f1f8a;
+    }
+
+    .btn-update.active {
+        background-color: #27f227;
+    }
+
+    .alert-info {
+        background-color: #d8fadb;
+        color: #171c22;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+</style>
+
+{% endblock content %}

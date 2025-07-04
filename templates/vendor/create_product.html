@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Product</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Form Container */
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Form Fields */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="datetime-local"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        #add-more-images-btn {
+            background-color: #007bff;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        #add-more-images-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* Image Preview Section */
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .image-container {
+            position: relative;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .image-preview img {
+            max-width: 100px;
+            max-height: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* File Input Container */
+        .file-input-container {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Create Product</h1>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" required><br><br>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea><br><br>
+
+            <label for="category">Category:</label>
+            <select id="category_id" name="category_id" required>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.title }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="start_bid">Starting Bid:</label>
+            <input type="number" id="start_bid" name="start_bid" step="0.01" required><br><br>
+
+            <label for="auction_start_time">Auction Start Time:</label>
+            <input type="datetime-local" id="auction_start_time" name="auction_start_time" required><br><br>
+
+            <label for="auction_end_time">Auction End Time:</label>
+            <input type="datetime-local" id="auction_end_time" name="auction_end_time" required><br><br>
+
+
+            <label for="shipping">Shipping Cost:</label>
+            <input type="number" id="shipping" name="shipping" step="0.01" required><br><br>
+
+            <!-- Image Upload Section -->
+            <div id="file-inputs-container">
+                <div class="file-input-container">
+                    <input type="file" name="images" accept="image/*" class="image-input">
+                    <button type="button" class="delete-btn hidden">×</button>
+                </div>
+            </div>
+            <button type="button" id="add-more-images-btn">Add More Images</button><br><br>
+
+            <!-- Image Preview Section -->
+            <div class="image-preview" id="image-preview"></div>
+
+            <button type="submit">Create Product</button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript for dynamic file inputs, previews, and deletions
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileInputsContainer = document.getElementById('file-inputs-container');
+            const addMoreImagesBtn = document.getElementById('add-more-images-btn');
+            const imagePreview = document.getElementById('image-preview');
+
+            // Function to create a new file input field
+            function createFileInput() {
+                const container = document.createElement('div');
+                container.className = 'file-input-container';
+
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.name = 'images';
+                input.accept = 'image/*';
+                input.className = 'image-input';
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.type = 'button';
+                deleteBtn.className = 'delete-btn hidden';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.onclick = function () {
+                    container.remove();
+                };
+
+                container.appendChild(input);
+                container.appendChild(deleteBtn);
+                return container;
+            }
+
+            // Add a new file input field when "Add More Images" is clicked
+            addMoreImagesBtn.addEventListener('click', function () {
+                const newFileInput = createFileInput();
+                fileInputsContainer.appendChild(newFileInput);
+            });
+
+            // Handle image preview and deletion
+            fileInputsContainer.addEventListener('change', function (event) {
+                if (event.target.classList.contains('image-input')) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const imageContainer = document.createElement('div');
+                            imageContainer.className = 'image-container';
+
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.type = 'button';
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.innerHTML = '×';
+                            deleteBtn.onclick = function () {
+                                imageContainer.remove();
+                                event.target.value = ''; // Clear the file input
+                            };
+
+                            imageContainer.appendChild(img);
+                            imageContainer.appendChild(deleteBtn);
+                            imagePreview.appendChild(imageContainer);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+
+            // Show delete buttons for file inputs when a file is selected
+            fileInputsContainer.addEventListener('change', function (event) {
+                if (event.target.classList.contains('image-input')) {
+                    const deleteBtn = event.target.nextElementSibling;
+                    if (event.target.files.length > 0) {
+                        deleteBtn.classList.remove('hidden');
+                    } else {
+                        deleteBtn.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

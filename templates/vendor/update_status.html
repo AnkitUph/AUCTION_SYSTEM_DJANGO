@@ -1,0 +1,76 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container">
+    <div class="card mb-4">
+        <div class="row g-0">
+            <div class="col-md-4">
+                {% for p in product_images %}
+                <img src="{{p.image.url}}"
+                     class="img-fluid rounded-start" 
+                     alt="{{ p.name }}"
+                     style="max-height: 300px; object-fit: cover;">
+                {% endfor %}
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h2 class="card-title">{{ order.product.name }}</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Order ID:</strong> #{{ order.id }}</p>
+                            <p><strong>Customer:</strong> {{ order.user }}</p>
+                            <p><strong>Order Date:</strong> {{ order.order_date|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Current Status:</strong></label>
+                                    <span class="badge bg-primary fs-6">
+                                        {{ order.get_delivery_status_display }}
+                                    </span>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="delivery_status" class="form-label">
+                                        <strong>Update Status:</strong>
+                                    </label>
+                                    <select class="form-select" 
+                                            name="delivery_status" 
+                                            id="delivery_status"
+                                            required>
+                                        {% for value, label in Delivery_status %}
+                                        <option value="{{ value }}"
+                                        {% if order.delivery_status == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                            
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        Update Status
+                                    </button>
+                                    <a href="{% url 'vendor:orders' %}" class="btn btn-secondary">
+                                        Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .form-label {
+    display: block !important;
+    font-size: 1rem !important;
+    color: #333 !important;
+}
+.container {
+        margin-top: 50px; /* Space above the content */
+        margin-bottom: 50px; /* Space below the content */
+    }
+</style>
+{% endblock %}

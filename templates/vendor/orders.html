@@ -1,0 +1,74 @@
+{% extends 'vendor/sidebar.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Product List -->
+    <div class="product-list">
+        <h2>Your Orders</h2>
+
+        <div class="card-container">
+            {% for p in orders %}
+            <div class="product-container">
+                <div class="product-image">
+                    <img src="{{ p.product.images.first.image.url }}" alt="Product Image">
+                </div>
+                <div class="product-items">
+                    <div class="product-info">
+                        <h3>{{ p.product.name }}</h3>
+                        <p>Category: {{ p.product.category }}</p>
+                        <p>Final: {{ p.bid_won.winning_bid }}</p>
+                        <p>Shipping Price: {{ p.product.shipping }}</p>
+                        <p>Payment Method: {{ p.payment_method }}</p>
+                        <p>Payment Amount: {{ p.total_price }}</p>
+                        <p>Delivery Status: {{ p.delivery_status }}</p>
+
+                        {% if payout_status_map.p.id == "approved" %}
+                            <p><span class="badge badge-success">Payout Approved</span></p>
+                        {% elif payout_status_map.p.id == "pending" %}
+                            <p><span class="badge badge-warning">Payout Pending</span></p>
+                        {% elif payout_status_map.p.id == "rejected" %}
+                            <p><span class="badge badge-danger">Payout Rejected</span></p>
+                        {% endif %}
+                    </div>
+
+                    <div class="product-actions">
+                        <a href="{% url 'base:product_detail' p.product.id %}">
+                            <button class="btn-view">
+                                <i class="fas fa-eye"></i> Product Detail
+                            </button>
+                        </a>
+
+                        <a href="{% url 'vendor:update_order_status' p.product.id %}">
+                            <button class="btn-update">
+                                <i class="fas fa-edit"></i> Delivery Status
+                            </button>
+                        </a>
+
+                        {% if p.delivery_status != "delivered" %}
+                            <button class="btn-payout" disabled>
+                                <i class="fas fa-times-circle"></i> Payout after delivery
+                            </button>
+                        {% elif p.id in payout_status_map %}
+                            <button class="btn-payout" disabled>
+                                <i class="fas fa-check-circle"></i> Payout Already Requested
+                            </button>
+                        {% else %}
+                            <form method="post" action="{% url 'vendor:request_payout_for_order' p.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-payout">
+                                    <i class="fas fa-money-check-alt"></i> Request Payout
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
+{% endblock content %}

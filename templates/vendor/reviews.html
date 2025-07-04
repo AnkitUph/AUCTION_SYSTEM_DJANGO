@@ -1,0 +1,273 @@
+{% extends 'vendor/sidebar.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content">
+    <div class="centered-content">
+        <h2 class="review-title">Manage Reviews</h2>
+
+        <!-- Filter Form -->
+        <form method="GET" class="filter-form">
+            <div class="filter-group">
+                <label>Filter by Rating:</label>
+                <select name="rating">
+                    <option value="">All Ratings</option>
+                    <option value="5" {% if request.GET.rating == '5' %}selected{% endif %}>★★★★★</option>
+                    <option value="4" {% if request.GET.rating == '4' %}selected{% endif %}>★★★★☆</option>
+                    <option value="3" {% if request.GET.rating == '3' %}selected{% endif %}>★★★☆☆</option>
+                    <option value="2" {% if request.GET.rating == '2' %}selected{% endif %}>★★☆☆☆</option>
+                    <option value="1" {% if request.GET.rating == '1' %}selected{% endif %}>★☆☆☆☆</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Sort by Date:</label>
+                <select name="review_time">
+                    <option value="-review_time" {% if request.GET.review_time == "-review_time" or not request.GET.review_time %}selected{% endif %}>Newest First</option>
+                    <option value="review_time" {% if request.GET.review_time == "review_time" %}selected{% endif %}>Oldest First</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-filter">Apply Filters</button>
+        </form>
+
+        <!-- Reviews List -->
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="review-content">
+                <div class="review-image">
+                    <img src="{{ review.product.images.first.image.url }}" alt="{{ review.product.name }}">
+                </div>
+
+                <div class="review-details">
+                    <div class="product-info">
+                        <span class="info-label">Product Name:</span>
+                        <h3>{{ review.product.name }}</h3>
+                        <div class="reviewed-by">
+                            <span class="info-label">Reviewed by:</span>
+                            <span class="review-user">{{ review.user.username }}</span>
+                        </div>
+                    </div>
+
+                    <div class="review-meta">
+                        <div class="rating-info">
+                            <span class="info-label">Rating:</span>
+                            <span class="stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                        <div class="date-info">
+                            <span class="info-label">Date:</span>
+                            <span class="review-date">{{ review.review_time|date:"d M, Y " }}</span>
+                        </div>
+                    </div>
+                    <div class="review-text">
+                        <span class="info-label">Review:</span>
+                        <p>{{ review.review }}</p>
+                    </div>
+
+                    <div class="reply-section">
+                        <p class="reply-heading">Reply</p>
+                        {% if review.reply %}
+                            <div class="current-reply">
+                                <p>{{ review.reply }}</p>
+                                <small class="reply-timestamp">Last updated: {{ review.updated_at|timesince }} ago</small>
+                            </div>
+                            <button class="btn-edit-reply" onclick="toggleReplyForm('{{ review.id }}')">Edit Reply</button>
+                        {% else %}
+                            <button class="btn-add-reply" onclick="toggleReplyForm('{{ review.id }}')">Add Reply</button>
+                        {% endif %}
+                        
+                        <form method="POST" action="{% url 'vendor:update_reply' review.id %}" id="reply-form-{{ review.id }}" style="display: none;">
+                            {% csrf_token %}
+                            <label class="reply-label">Vendor Reply:</label>
+                            <textarea name="reply" class="reply-box">{% if review.reply %}{{ review.reply }}{% endif %}</textarea>
+                            <button type="submit" class="btn-reply">Update Reply</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-reviews">No reviews found matching your criteria.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+:root {
+    --dark-green: #1A4D1A;
+    --medium-green: #2D5A2D;
+    --light-green: #E8F5E9;
+}
+#message-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #28a745;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+.main-content {
+    padding: 2rem;
+    background: #f8f9fa;
+}
+
+.review-title {
+    color: var(--dark-green);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.filter-form {
+    display: flex;
+    gap: 1.5rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--dark-green);
+    font-weight: 600;
+}
+
+
+select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: white;
+}
+
+.btn-filter {
+    background: var(--dark-green);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: flex-end;
+}
+
+.review-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+}
+
+.review-content {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.review-image img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 2px solid var(--medium-green);
+}
+
+.info-label {
+    color: var(--dark-green);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.product-info h3 {
+    color: var(--medium-green);
+    margin: 0 0 1rem 0;
+}
+
+.review-meta {
+    display: flex;
+    gap: 2rem;
+    margin: 1rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.stars {
+    color: #FFD700;
+    font-size: 1.1rem;
+}
+
+.review-text {
+    background: var(--light-green);
+    padding: 1rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+}
+
+.reply-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.btn-add-reply, .btn-edit-reply {
+    background: var(--medium-green);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.reply-box {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+}
+
+.btn-reply {
+    background: var(--dark-green);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.no-reviews {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+</style>
+
+<script>
+function toggleReplyForm(reviewId) {
+    const form = document.getElementById(`reply-form-${reviewId}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,365 @@
+{% extends 'customer/sidebar.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content">
+    <div class="centered-content">
+        <h2 class="review-title">My Reviews</h2>
+
+
+        <form method="GET" class="filter-form">
+            <div class="filter-group">
+                <label>Filter by Rating:</label>
+                <select name="rating">
+                    <option value="">All Ratings</option>
+                    <option value="5" {% if request.GET.rating == '5' %}selected{% endif %}>★★★★★</option>
+                    <option value="4" {% if request.GET.rating == '4' %}selected{% endif %}>★★★★☆</option>
+                    <option value="3" {% if request.GET.rating == '3' %}selected{% endif %}>★★★☆☆</option>
+                    <option value="2" {% if request.GET.rating == '2' %}selected{% endif %}>★★☆☆☆</option>
+                    <option value="1" {% if request.GET.rating == '1' %}selected{% endif %}>★☆☆☆☆</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Sort by Date:</label>
+                <select name="review_time">
+                    <option value="-review_time" {% if request.GET.review_time == "-review_time" or not request.GET.review_time %}selected{% endif %}>Newest First</option>
+                    <option value="review_time" {% if request.GET.review_time == "review_time" %}selected{% endif %}>Oldest First</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-filter">Apply Filters</button>
+        </form>
+
+        <!-- Reviews List (Matched card structure) -->
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="review-content">
+                <div class="review-image">
+                    <img src="{{ review.product.images.first.image.url }}" alt="{{ review.product.name }}">
+                </div>
+
+                <div class="review-details">
+                    <div class="product-info">
+                        <span class="info-label">Product Name:</span>
+                        <h3>{{ review.product.name }}</h3>
+                    </div>
+
+                    <div class="review-meta">
+                        <div class="rating-info">
+                            <span class="info-label">Rating:</span>
+                            <span class="stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                        <div class="date-info">
+                            <span class="info-label">Date:</span>
+                            <span class="review-date">{{ review.review_time|date:"d M, Y " }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="review-text">
+                        <span class="info-label">Review:</span>
+                        <p>{{ review.review }}</p>
+                    </div>
+
+                    <!-- Vendor Response Section (Matched reply styling) -->
+                    <div class="reply-section">
+                        <p class="reply-heading">Vendor Response</p>
+                        {% if review.reply %}
+                            <div class="current-reply">
+                                <p>{{ review.reply }}</p>
+                                {% if review.updated_at %}
+                                <small class="reply-timestamp">Last updated: {{ review.updated_at|timesince }} ago</small>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="no-reply">No response yet from vendor.</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Edit Section (Styled like vendor's reply section) -->
+                    <div class="edit-review-section">
+                        <button class="btn-edit-reply" onclick="toggleReviewForm('{{ review.id }}')">Edit Review</button>
+                        <form method="POST" action="{% url 'customer:update_review' review.id %}" id="review-form-{{ review.id }}" style="display: none;">
+                            {% csrf_token %}
+                            <label class="reply-label">Edit Review:</label>
+                            <div class="rating-edit">
+                                <span class="info-label">Rating:</span>
+                                <select name="rating" class="rating-select">
+                                    <option value="5" {% if review.rating == 5 %}selected{% endif %}>★★★★★</option>
+                                    <option value="4" {% if review.rating == 4 %}selected{% endif %}>★★★★☆</option>
+                                    <option value="3" {% if review.rating == 3 %}selected{% endif %}>★★★☆☆</option>
+                                    <option value="2" {% if review.rating == 2 %}selected{% endif %}>★★☆☆☆</option>
+                                    <option value="1" {% if review.rating == 1 %}selected{% endif %}>★☆☆☆☆</option>
+                                </select>
+                            </div>
+                            <textarea name="review_text" class="reply-box">{{ review.review }}</textarea>
+                            <button type="submit" class="btn-reply">Update Review</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-reviews">No reviews found.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* customer/reviews.html - Full Width Stylesheet */
+:root {
+    --sidebar-width: 240px;
+    --dark-green: #1A4D1A;
+    --medium-green: #2D5A2D;
+    --light-green: #E8F5E9;
+    --shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+* {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow-x: hidden;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Main Content Area */
+.main-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100vw - var(--sidebar-width));
+    min-height: 100vh;
+    padding: 2rem;
+    background: #f8f9fa;
+    position: relative;
+    left: 0;
+}
+
+.centered-content {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Review Cards Layout */
+.review-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin: 0 0 2rem 0;
+    padding: 1.5rem;
+    width: 100% !important;
+    max-width: none !important;
+}
+
+.review-content {
+    display: grid;
+    grid-template-columns: minmax(160px, auto) 1fr;
+    gap: 2rem;
+    width: 100%;
+}
+
+.review-image img {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    border: 2px solid var(--medium-green);
+}
+
+/* Content Sections */
+.review-details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+}
+
+.product-info h3 {
+    color: var(--medium-green);
+    margin: 0 0 0.5rem 0;
+    font-size: 1.4rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.review-meta {
+    display: flex;
+    gap: 2rem;
+    margin: 1rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+}
+
+/* Text Containers */
+.review-text {
+    background: var(--light-green);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+    width: 100%;
+}
+
+.reply-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+    width: 100%;
+}
+
+/* Form Elements */
+.filter-form {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center; /* Added alignment */
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.filter-group label {
+    display: inline-block; /* Changed from block */
+    margin-bottom: 0;
+    white-space: nowrap;
+    color: var(--dark-green);
+    font-weight: 600;
+}
+
+.filter-group select {
+    width: auto; /* Changed from 100% */
+    min-width: 150px; /* Added minimum width */
+    flex-grow: 1;
+}
+
+.stars {
+    color: #FFD700;
+    font-size: 1.1rem;
+}
+
+.btn-filter {
+    background: var(--dark-green);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: flex-end;
+}
+
+/* Edit Section */
+.edit-review-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+    width: 100%;
+}
+
+.btn-edit-reply {
+    background: var(--medium-green);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-edit-reply:hover {
+    background: var(--dark-green);
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .review-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .review-image img {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+    
+    .main-content {
+        padding: 1.5rem;
+    }
+    
+    .filter-form {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-group {
+        flex: 1 1 100%;
+    }
+    
+    .filter-group select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 1rem;
+        width: calc(100vw - 60px);
+    }
+    
+    :root {
+        --sidebar-width: 60px;
+    }
+    
+    .review-card {
+        padding: 1rem;
+    }
+    
+    .product-info h3 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Override Framework Constraints */
+.container, .container-fluid, .row, .col {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+</style>
+<script>
+function toggleReviewForm(reviewId) {
+    const form = document.getElementById(`review-form-${reviewId}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

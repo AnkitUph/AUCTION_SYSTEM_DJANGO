@@ -1,0 +1,92 @@
+{% extends 'vendor/sidebar.html' %}
+{% load static %}
+{% block content %}
+
+
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Overview -->
+            <div class="dashboard-overview">
+                <div class="overview-grid">
+                    <!-- First Row -->
+                    <div class="overview-card">
+                        <div class="card-content">
+                            <i class="fas fa-box"></i>
+                            <h3>Total Products</h3>
+                            <p>{{products.count}}</p>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="card-content">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>Products Sold</h3>
+                            <p>{{orders.count}}</p>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="card-content">
+                            <i class="fas fa-wallet"></i>
+                            <h3>Revenue</h3>
+                            <p>${{revenue}}</p>
+                        </div>
+                    </div>
+                    <!-- Second Row -->
+                    <div class="overview-card">
+                        <div class="card-content">
+                            <i class="fas fa-star"></i>
+                            <h3>Rating</h3>
+                            <p>{{rating}}</p>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="card-content">
+                            <i class="fas fa-bell"></i>
+                            <h3>Notifications</h3>
+                            <p>{{notis.count}}</p>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="card-content">
+                            <i class="fas fa-comment"></i>
+                            <h3>New Reviews</h3>
+                            <p>{{reviews.count}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product List -->
+            <div class="product-list">
+                <h2>Your Products</h2>
+                
+               <div class="card-container">
+                {% for p in products %}
+                <div class="product-container">
+                    <div class="product-image">
+                        <img src="{{p.images.first.image.url}}" alt="Product Image">
+                    </div>
+                    <div class="product-items">
+                    <div class="product-info">
+                        <h3>{{p.name}}</h3>
+                        <p>Category:{{p.category}}</p>
+                        <p>StartBid:{{p.start_bid}}</p>
+                        <p>Shipping:{{p.shipping}}</p>
+                    </div>
+                   
+                    <div class="product-actions">
+                        <a href="{% url 'base:product_detail' p.id %}"><button class="btn-view"><i class="fas fa-eye"></i>View</button></a>
+                        <a href="{% url 'vendor:update_product' p.id %}"><button class="btn-update"><i class="fas fa-edit"></i>Update</button></a>
+                        <a href="{% url 'vendor:delete_product' p.id %}"><button class="btn-delete"><i class="fas fa-trash"></i>Delete</button></a>
+                    </div>
+                </div>
+                </div>
+                {% endfor %}
+                </div>
+                
+            </div>
+        </div>
+</body>
+</html>
+
+{% endblock content %}
