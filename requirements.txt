@@ -73,7 +73,7 @@ msgpack==1.0.7
 numpy
 oauthlib==3.2.2
 packaging==23.2
-pandas==2.1.1
+pandas
 proglog==0.1.10
 proto-plus==1.24.0
 protobuf==5.27.2
